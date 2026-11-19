@@ -1,587 +1,279 @@
- // ===================================
-// DATA MATERI LAPISAN BUMI
-// ===================================
-
-const materials = {
-  crust: {
-    title: "Kerak Bumi",
-    text: "Kerak Bumi merupakan lapisan paling luar dan paling tipis. Lapisan ini tersusun atas batuan padat dan menjadi tempat berlangsungnya kehidupan. Kerak Bumi terbagi menjadi kerak benua dan kerak samudra.",
-    fact: "Ketebalan sekitar 5–70 km."
-  },
-
-  mantle: {
-    title: "Mantel Bumi",
-    text: "Mantel Bumi terletak di bawah kerak dan merupakan lapisan paling tebal. Lapisan ini tersusun terutama dari batuan silikat yang sangat panas. Material mantel dapat mengalir sangat lambat dalam waktu geologis.",
-    fact: "Ketebalan sekitar 2.900 km."
-  },
-
-  outer: {
-    title: "Inti Luar",
-    text: "Inti luar berada di bawah mantel dan mengelilingi inti dalam. Lapisan ini terutama tersusun dari besi dan nikel dalam keadaan cair. Pergerakan logam cair di bagian ini berperan dalam pembentukan medan magnet Bumi.",
-    fact: "Ketebalan sekitar 2.200 km."
-  },
-
-  inner: {
-    title: "Inti Dalam",
-    text: "Inti dalam merupakan bagian paling pusat dari Bumi. Lapisan ini terutama tersusun dari besi dan nikel dalam keadaan padat. Walaupun suhunya sangat tinggi, tekanan yang sangat besar membuatnya tetap padat.",
-    fact: "Jari-jari sekitar 1.220 km."
-  }
-};
-
-
-// ===================================
-// FITUR MATERI
-// ===================================
-
-const materialButtons =
-  document.querySelectorAll(".material-button");
-
-const materialDetail =
-  document.getElementById("materialDetail");
-
-function showMaterial(layer) {
-
-  const data = materials[layer];
-
-  materialDetail.innerHTML = `
-    <h3>${data.title}</h3>
-    <p>${data.text}</p>
-    <br>
-    <strong>📌 Fakta:</strong>
-    <p>${data.fact}</p>
-  `;
-
-  materialButtons.forEach(button => {
-    button.classList.toggle(
-      "active",
-      button.dataset.layer === layer
-    );
-  });
-}
-
-materialButtons.forEach(button => {
-
-  button.addEventListener("click", () => {
-    showMaterial(button.dataset.layer);
-  });
-
-});
-
-showMaterial("crust");
-
-
-// ===================================
-// FITUR EKSPLORASI
-// ===================================
-
-const exploreButtons =
-  document.querySelectorAll("[data-explore]");
-
-const exploreDetail =
-  document.getElementById("exploreDetail");
-
-exploreButtons.forEach(button => {
-
-  button.addEventListener("click", () => {
-
-    const layer = button.dataset.explore;
-    const data = materials[layer];
-
-    exploreDetail.innerHTML = `
-      <h3>🔍 ${data.title}</h3>
-      <p>${data.text}</p>
-      <br>
-      <strong>${data.fact}</strong>
-    `;
-
-    exploreButtons.forEach(btn => {
-      btn.classList.remove("active");
-    });
-
-    button.classList.add("active");
-
-  });
-
-});
-
-
-// ===================================
-// FITUR MENU RESPONSIF
-// ===================================
-
-const menuToggle =
-  document.getElementById("menuToggle");
-
-const navMenu =
-  document.getElementById("navMenu");
-
-menuToggle.addEventListener("click", () => {
-
-  navMenu.classList.toggle("open");
-
-  menuToggle.textContent =
-    navMenu.classList.contains("open") ? "✕" : "☰";
-
-});
-
-document.querySelectorAll("#navMenu a").forEach(link => {
-
-  link.addEventListener("click", () => {
-
-    navMenu.classList.remove("open");
-    menuToggle.textContent = "☰";
-
-  });
-
-});
-
-
-// ===================================
-// GAME COCOKKAN LAPISAN BUMI
-// ===================================
-
-let selectedName = null;
-let selectedFact = null;
-let matchedPairs = new Set();
-
-const gameButtons =
-  document.querySelectorAll(".game-option");
-
-const gameMessage =
-  document.getElementById("gameMessage");
-
-const gameScore =
-  document.getElementById("gameScore");
-
-function updateGameScore() {
-
-  gameScore.textContent =
-    `Skor: ${matchedPairs.size} / 4`;
-
-}
-
-function resetGame() {
-
-  selectedName = null;
-  selectedFact = null;
-  matchedPairs.clear();
-
-  gameButtons.forEach(button => {
-
-    button.disabled = false;
-
-    button.classList.remove(
-      "selected",
-      "correct",
-      "wrong"
-    );
-
-  });
-
-  gameMessage.textContent =
-    "Pilih satu nama dan satu karakteristik!";
-
-  updateGameScore();
-
-}
-
-gameButtons.forEach(button => {
-
-  button.addEventListener("click", () => {
-
-    if (button.disabled) return;
-
-    const side = button.dataset.side;
-
-    if (side === "name") {
-
-      if (selectedName) {
-        selectedName.classList.remove("selected");
-      }
-
-      selectedName = button;
-
-    } else {
-
-      if (selectedFact) {
-        selectedFact.classList.remove("selected");
-      }
-
-      selectedFact = button;
-
-    }
-
-    button.classList.add("selected");
-
-    if (selectedName && selectedFact) {
-
-      const nameAnswer = selectedName.dataset.answer;
-      const factAnswer = selectedFact.dataset.answer;
-
-      if (nameAnswer === factAnswer) {
-
-        matchedPairs.add(nameAnswer);
-
-        selectedName.classList.remove("selected");
-        selectedFact.classList.remove("selected");
-
-        selectedName.classList.add("correct");
-        selectedFact.classList.add("correct");
-
-        selectedName.disabled = true;
-        selectedFact.disabled = true;
-
-        gameMessage.textContent =
-          "🎉 Hebat! Pasangan kamu benar!";
-
-      } else {
-
-        gameMessage.textContent =
-          "Belum tepat. Coba cocokkan kembali!";
-
-        const oldName = selectedName;
-        const oldFact = selectedFact;
-
-        oldName.classList.add("wrong");
-        oldFact.classList.add("wrong");
-
-        setTimeout(() => {
-
-          oldName.classList.remove("wrong", "selected");
-          oldFact.classList.remove("wrong", "selected");
-
-        }, 600);
-
-      }
-
-      selectedName = null;
-      selectedFact = null;
-
-      updateGameScore();
-
-      if (matchedPairs.size === 4) {
-
-        gameMessage.textContent =
-          "🏆 SELAMAT! Semua pasangan berhasil ditemukan!";
-
-      }
-
-    }
-
-  });
-
-});
-
-document.getElementById("resetGame")
-  .addEventListener("click", resetGame);
-
-resetGame();
-
-
-// ===================================
-// DATA SOAL KUIS
-// ===================================
-
-const questions = [
-
-  {
-    question: "Lapisan paling luar Bumi adalah ...",
-    answers: [
-      "Mantel Bumi",
-      "Kerak Bumi",
-      "Inti Luar",
-      "Inti Dalam"
-    ],
-    correct: 1,
-    explanation: "Kerak Bumi adalah lapisan paling luar."
-  },
-
-  {
-    question: "Lapisan Bumi yang paling tebal adalah ...",
-    answers: [
-      "Kerak Bumi",
-      "Mantel Bumi",
-      "Inti Luar",
-      "Inti Dalam"
-    ],
-    correct: 1,
-    explanation: "Mantel merupakan lapisan paling tebal."
-  },
-
-  {
-    question: "Inti luar Bumi memiliki bentuk ...",
-    answers: [
-      "Padat",
-      "Gas",
-      "Cair",
-      "Es"
-    ],
-    correct: 2,
-    explanation: "Inti luar terutama tersusun dari logam cair."
-  },
-
-  {
-    question: "Inti dalam Bumi terutama tersusun atas ...",
-    answers: [
-      "Besi dan nikel",
-      "Air dan udara",
-      "Pasir dan tanah",
-      "Batu dan es"
-    ],
-    correct: 0,
-    explanation: "Inti dalam terutama tersusun dari besi dan nikel."
-  },
-
-  {
-    question: "Apa yang berperan dalam pembentukan medan magnet Bumi?",
-    answers: [
-      "Kerak Bumi",
-      "Mantel Bumi",
-      "Inti luar",
-      "Atmosfer"
-    ],
-    correct: 2,
-    explanation: "Gerakan logam cair di inti luar berperan dalam pembentukan medan magnet."
-  }
-
-];
-
-
-// ===================================
-// SISTEM KUIS OTOMATIS
-// ===================================
-
-let currentQuestion = 0;
-let score = 0;
-let answered = false;
-
-const questionElement =
-  document.getElementById("question");
-
-const answersElement =
-  document.getElementById("answers");
-
-const feedbackElement =
-  document.getElementById("feedback");
-
-const nextButton =
-  document.getElementById("nextQuestion");
-
-const questionNumber =
-  document.getElementById("questionNumber");
-
-const progressBar =
-  document.getElementById("progressBar");
-
-const quizCard =
-  document.getElementById("quizCard");
-
-const quizResult =
-  document.getElementById("quizResult");
-
-
-function loadQuestion() {
-
-  answered = false;
-
-  const q = questions[currentQuestion];
-
-  questionNumber.textContent =
-    `Soal ${currentQuestion + 1} dari ${questions.length}`;
-
-  questionElement.textContent = q.question;
-
-  progressBar.style.width =
-    `${currentQuestion / questions.length * 100}%`;
-
-  feedbackElement.textContent =
-    "Pilih jawaban yang menurutmu benar.";
-
-  nextButton.disabled = true;
-
-  nextButton.textContent =
-    currentQuestion === questions.length - 1
-      ? "Lihat Hasil"
-      : "Selanjutnya →";
-
-  answersElement.innerHTML = "";
-
-  q.answers.forEach((answer, index) => {
-
-    const button = document.createElement("button");
-
-    button.className = "answer-option";
-
-    button.textContent =
-      `${String.fromCharCode(65 + index)}. ${answer}`;
-
-    button.addEventListener("click", () => {
-
-      checkAnswer(index);
-
-    });
-
-    answersElement.appendChild(button);
-
-  });
-
-}
-
-
-function checkAnswer(selected) {
-
-  if (answered) return;
-
-  answered = true;
-
-  const q = questions[currentQuestion];
-
-  const buttons =
-    document.querySelectorAll(".answer-option");
-
-  buttons.forEach((button, index) => {
-
-    button.disabled = true;
-
-    if (index === q.correct) {
-      button.classList.add("correct");
-    }
-
-    if (index === selected && selected !== q.correct) {
-      button.classList.add("incorrect");
-    }
-
-  });
-
-  if (selected === q.correct) {
-
-    score++;
-
-    feedbackElement.textContent =
-      "🎉 Benar! " + q.explanation;
-
-  } else {
-
-    feedbackElement.textContent =
-      "Belum tepat. " + q.explanation;
-
-  }
-
-  nextButton.disabled = false;
-
-}
-
-
-nextButton.addEventListener("click", () => {
-
-  if (!answered) return;
-
-  if (currentQuestion < questions.length - 1) {
-
-    currentQuestion++;
-
-    loadQuestion();
-
-  } else {
-
-    showResult();
-
-  }
-
-});
-
-
-// ===================================
-// HASIL KUIS
-// ===================================
-
-function showResult() {
-
-  quizCard.classList.add("hidden");
-
-  quizResult.classList.remove("hidden");
-
-  const finalScore =
-    Math.round(score / questions.length * 100);
-
-  let message = "";
-
-  if (finalScore === 100) {
-
-    message = "Luar biasa! Semua jawaban kamu benar! 🏆";
-
-  } else if (finalScore >= 60) {
-
-    message = "Bagus! Terus tingkatkan pengetahuanmu! 🌟";
-
-  } else {
-
-    message = "Tetap semangat! Ayo pelajari materinya lagi! 💪";
-
-  }
-
-  let bestScore = Number(
-    localStorage.getItem("bestScoreBumi") || 0
-  );
-
-  if (finalScore > bestScore) {
-
-    bestScore = finalScore;
-
-    localStorage.setItem(
-      "bestScoreBumi",
-      String(bestScore)
-    );
-
-  }
-
-  quizResult.innerHTML = `
-    <div style="text-align:center;padding:20px">
-
-      <div style="font-size:55px">🏆</div>
-
-      <h2>Hasil Kuis Kamu</h2>
-
-      <h1 style="font-size:55px;color:#249bd1">
-        ${finalScore}
-      </h1>
-
-      <h3>${score} dari ${questions.length} jawaban benar</h3>
-
-      <p style="margin:15px 0">${message}</p>
-
-      <p>Nilai terbaik: ${bestScore}</p>
-
-      <button class="btn primary" id="retryQuiz">
-        ↻ Ulangi Kuis
-      </button>
-
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Website edukasi interaktif untuk mengenal lapisan Bumi.">
+  <title>Jelajah Bumi | Dunia Lapisan Bumi</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="navbar">
+  <a class="brand" href="#beranda">
+    <img src="https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?w=100&h=100&fit=crop" alt="Ilustrasi planet Bumi">
+    <span>Jelajah Bumi</span>
+  </a>
+
+  <button class="menu-toggle" id="menuToggle" aria-label="Buka menu">☰</button>
+
+  <nav id="navMenu">
+    <a href="#beranda">Beranda</a>
+    <a href="#materi">Materi</a>
+    <a href="#eksplorasi">Eksplorasi</a>
+    <a href="#game">Game</a>
+    <a href="#kuis">Kuis</a>
+    <a href="#profil">Profil</a>
+  </nav>
+</header>
+
+<main>
+
+  <!-- BERANDA -->
+  <section class="hero" id="beranda">
+    <div class="hero-content">
+      <span class="eyebrow">SELAMAT DATANG DI DUNIA PENGETAHUAN</span>
+      <h1>Yuk, Jelajahi <span>Lapisan Bumi!</span></h1>
+      <p>
+        Kenali dunia di dalam planet Bumi, temukan keajaiban alam,
+        dan pelajari empat lapisan Bumi melalui pengalaman belajar
+        yang menarik dan menyenangkan.
+      </p>
+      <div class="hero-buttons">
+        <a class="btn btn-primary" href="#materi">Mulai Belajar</a>
+        <a class="btn btn-light" href="#eksplorasi">Jelajahi Bumi</a>
+      </div>
+
+      <div class="hero-stats">
+        <div><strong>4</strong><span>Lapisan Bumi</span></div>
+        <div><strong>5</strong><span>Materi Utama</span></div>
+        <div><strong>Interaktif</strong><span>Belajar Seru</span></div>
+      </div>
     </div>
-  `;
 
-  document.getElementById("retryQuiz")
-    .addEventListener("click", restartQuiz);
+    <div class="hero-art">
+      <div class="art-circle"></div>
+      <img class="earth-image"
+        src="https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?w=850"
+        alt="Planet Bumi dari luar angkasa">
+      <div class="floating-card">
+        <img src="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=200" alt="Ilustrasi luar angkasa">
+        <div><strong>Petualangan Dimulai!</strong><small>Kenali rumah kita, planet Bumi.</small></div>
+      </div>
+    </div>
+  </section>
 
-}
+  <!-- KEUNGGULAN -->
+  <section class="features">
+    <div class="feature-item">
+      <div class="feature-icon">01</div>
+      <h3>Belajar Visual</h3>
+      <p>Kenali Bumi melalui gambar dan ilustrasi.</p>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">02</div>
+      <h3>Eksplorasi</h3>
+      <p>Pilih lapisan Bumi dan pelajari bagiannya.</p>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">03</div>
+      <h3>Game Edukasi</h3>
+      <p>Uji pemahaman melalui permainan.</p>
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">04</div>
+      <h3>Kuis Otomatis</h3>
+      <p>Kerjakan soal dan lihat hasil nilaimu.</p>
+    </div>
+  </section>
 
+  <!-- MATERI -->
+  <section class="section" id="materi">
+    <div class="section-heading">
+      <span class="eyebrow">RUANG BELAJAR</span>
+      <h2>Mengenal Lapisan Bumi</h2>
+      <p>Bumi memiliki empat lapisan utama yang menyusun bagian dalam planet kita.</p>
+    </div>
 
-function restartQuiz() {
+    <div class="layer-grid">
+      <article class="layer-card">
+        <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=600" alt="Permukaan daratan Bumi">
+        <div class="layer-number">01</div>
+        <div class="layer-body">
+          <h3>Kerak Bumi</h3>
+          <p>Lapisan paling luar dan paling tipis. Menjadi tempat manusia, hewan, dan tumbuhan hidup.</p>
+          <button class="text-button" data-layer="kerak">Pelajari Materi</button>
+        </div>
+      </article>
 
-  currentQuestion = 0;
-  score = 0;
+      <article class="layer-card">
+        <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600" alt="Batuan dan material alam">
+        <div class="layer-number">02</div>
+        <div class="layer-body">
+          <h3>Mantel Bumi</h3>
+          <p>Lapisan sangat tebal di bawah kerak yang tersusun dari batuan panas dan dapat mengalir perlahan.</p>
+          <button class="text-button" data-layer="mantel">Pelajari Materi</button>
+        </div>
+      </article>
 
-  quizResult.classList.add("hidden");
-  quizCard.classList.remove("hidden");
+      <article class="layer-card">
+        <img src="https://images.unsplash.com/photo-1516339901601-2e1b62dc0c45?w=600" alt="Cahaya panas">
+        <div class="layer-number">03</div>
+        <div class="layer-body">
+          <h3>Inti Luar</h3>
+          <p>Lapisan logam cair yang terutama terdiri dari besi dan nikel. Pergerakannya membantu membentuk medan magnet Bumi.</p>
+          <button class="text-button" data-layer="inti-luar">Pelajari Materi</button>
+        </div>
+      </article>
 
-  loadQuestion();
+      <article class="layer-card">
+        <img src="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=600" alt="Ilustrasi cahaya di luar angkasa">
+        <div class="layer-number">04</div>
+        <div class="layer-body">
+          <h3>Inti Dalam</h3>
+          <p>Bagian paling dalam Bumi yang berbentuk padat dan tersusun terutama dari besi dan nikel.</p>
+          <button class="text-button" data-layer="inti-dalam">Pelajari Materi</button>
+        </div>
+      </article>
+    </div>
 
-}
+    <div class="detail-panel" id="materiDetail" aria-live="polite">
+      <h3>Pilih salah satu lapisan Bumi</h3>
+      <p>Tekan tombol Pelajari Materi untuk membaca penjelasan lebih lengkap.</p>
+    </div>
+  </section>
 
-loadQuestion();
+  <!-- EKSPLORASI -->
+  <section class="explore-section" id="eksplorasi">
+    <div class="section-heading">
+      <span class="eyebrow">LABORATORIUM BUMI</span>
+      <h2>Eksplorasi Struktur Bumi</h2>
+      <p>Amati gambaran penampang Bumi dan pilih lapisan yang ingin kamu pelajari.</p>
+    </div>
 
+    <div class="explore-layout">
+      <div class="earth-cutaway" role="img" aria-label="Ilustrasi empat lapisan Bumi">
+        <div class="earth-layer crust">
+          <div class="earth-layer mantle">
+            <div class="earth-layer outer-core">
+              <div class="earth-layer inner-core"></div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-// ===================================
-// SELESAI
-// ===================================
+      <div class="explore-info">
+        <h3>Bagian Dalam Planet Bumi</h3>
+        <p>Setiap lapisan memiliki susunan, suhu, ketebalan, dan karakteristik yang berbeda.</p>
+        <button class="layer-choice" data-layer="kerak">01 — Kerak Bumi</button>
+        <button class="layer-choice" data-layer="mantel">02 — Mantel Bumi</button>
+        <button class="layer-choice" data-layer="inti-luar">03 — Inti Luar</button>
+        <button class="layer-choice" data-layer="inti-dalam">04 — Inti Dalam</button>
+        <div id="exploreDetail" class="detail-panel">
+          Pilih salah satu lapisan untuk melihat keterangannya.
+        </div>
+      </div>
+    </div>
+  </section>
 
-console.log("Jelajah Bumi berhasil dijalankan!");
+  <!-- GAME -->
+  <section class="section" id="game">
+    <div class="section-heading">
+      <span class="eyebrow">BERMAIN SAMBIL BELAJAR</span>
+      <h2>Game Edukasi Bumi</h2>
+      <p>Coba cocokkan nama lapisan dengan penjelasan yang benar.</p>
+    </div>
+
+    <div class="game-box">
+      <div class="game-top">
+        <h3>Game Mencocokkan Lapisan</h3>
+        <span id="gameScore">Skor: 0 / 4</span>
+      </div>
+      <p>Pilih satu nama lapisan, kemudian pilih penjelasan yang sesuai.</p>
+
+      <div class="matching-grid">
+        <div>
+          <h4>Nama Lapisan</h4>
+          <button class="match-name" data-match="kerak">Kerak Bumi</button>
+          <button class="match-name" data-match="mantel">Mantel Bumi</button>
+          <button class="match-name" data-match="inti-luar">Inti Luar</button>
+          <button class="match-name" data-match="inti-dalam">Inti Dalam</button>
+        </div>
+        <div>
+          <h4>Penjelasan</h4>
+          <button class="match-answer" data-answer="inti-dalam">Bagian paling dalam yang padat.</button>
+          <button class="match-answer" data-answer="kerak">Lapisan paling luar dan tipis.</button>
+          <button class="match-answer" data-answer="inti-luar">Lapisan logam cair.</button>
+          <button class="match-answer" data-answer="mantel">Lapisan batuan sangat tebal.</button>
+        </div>
+      </div>
+      <p id="gameMessage" class="game-message" aria-live="polite">Pilih pasangan yang benar!</p>
+      <button class="btn btn-primary" id="resetGame">Ulangi Permainan</button>
+    </div>
+  </section>
+
+  <!-- KUIS -->
+  <section class="quiz-section" id="kuis">
+    <div class="section-heading">
+      <span class="eyebrow">UJI PENGETAHUANMU</span>
+      <h2>Kuis Lapisan Bumi</h2>
+      <p>Jawab pertanyaan berikut dan lihat hasil belajarmu.</p>
+    </div>
+
+    <div class="quiz-box" id="quizBox">
+      <div class="quiz-top">
+        <span id="questionNumber">Pertanyaan 1 dari 5</span>
+        <span id="quizProgressText">0%</span>
+      </div>
+      <div class="progress-track"><div id="quizProgress"></div></div>
+      <h3 id="questionText">Memuat pertanyaan...</h3>
+      <div id="answerOptions" class="answer-options"></div>
+      <p id="quizFeedback" aria-live="polite"></p>
+      <button id="nextQuestion" class="btn btn-primary" disabled>Soal Berikutnya</button>
+    </div>
+
+    <div class="quiz-result" id="quizResult" hidden>
+      <h3>Hasil Kuis Kamu</h3>
+      <strong id="finalScore">0</strong>
+      <p id="resultMessage"></p>
+      <button class="btn btn-primary" id="retryQuiz">Ulangi Kuis</button>
+    </div>
+  </section>
+
+  <!-- PROFIL -->
+  <section class="section" id="profil">
+    <div class="section-heading">
+      <span class="eyebrow">PERJALANAN BELAJARMU</span>
+      <h2>Profil dan Progres</h2>
+      <p>Lihat perkembangan pembelajaranmu di website ini.</p>
+    </div>
+
+    <div class="profile-box">
+      <div class="profile-avatar">JB</div>
+      <div class="profile-content">
+        <label for="userName">Nama Penjelajah</label>
+        <input id="userName" type="text" maxlength="35" placeholder="Masukkan nama kamu">
+        <button class="btn btn-primary" id="saveName">Simpan Nama</button>
+      </div>
+    </div>
+
+    <div class="progress-cards">
+      <div><strong id="learnedCount">0</strong><span>Materi dipelajari</span></div>
+      <div><strong id="bestScore">0</strong><span>Nilai terbaik</span></div>
+      <div><strong id="gameBest">0</strong><span>Pasangan benar</span></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="footer-brand">Jelajah Bumi</div>
+  <p>Belajar mengenal planet Bumi dengan cara yang menyenangkan.</p>
+  <p class="copyright">© 2026 Jelajah Bumi. Media Pembelajaran Lapisan Bumi.</p>
+</footer>
+
+<button id="backTop" class="back-top" aria-label="Kembali ke atas">↑</button>
+
+<script src="script.js"></script>
+</body>
+</html>
