@@ -1,0 +1,587 @@
+ // ===================================
+// DATA MATERI LAPISAN BUMI
+// ===================================
+
+const materials = {
+  crust: {
+    title: "Kerak Bumi",
+    text: "Kerak Bumi merupakan lapisan paling luar dan paling tipis. Lapisan ini tersusun atas batuan padat dan menjadi tempat berlangsungnya kehidupan. Kerak Bumi terbagi menjadi kerak benua dan kerak samudra.",
+    fact: "Ketebalan sekitar 5–70 km."
+  },
+
+  mantle: {
+    title: "Mantel Bumi",
+    text: "Mantel Bumi terletak di bawah kerak dan merupakan lapisan paling tebal. Lapisan ini tersusun terutama dari batuan silikat yang sangat panas. Material mantel dapat mengalir sangat lambat dalam waktu geologis.",
+    fact: "Ketebalan sekitar 2.900 km."
+  },
+
+  outer: {
+    title: "Inti Luar",
+    text: "Inti luar berada di bawah mantel dan mengelilingi inti dalam. Lapisan ini terutama tersusun dari besi dan nikel dalam keadaan cair. Pergerakan logam cair di bagian ini berperan dalam pembentukan medan magnet Bumi.",
+    fact: "Ketebalan sekitar 2.200 km."
+  },
+
+  inner: {
+    title: "Inti Dalam",
+    text: "Inti dalam merupakan bagian paling pusat dari Bumi. Lapisan ini terutama tersusun dari besi dan nikel dalam keadaan padat. Walaupun suhunya sangat tinggi, tekanan yang sangat besar membuatnya tetap padat.",
+    fact: "Jari-jari sekitar 1.220 km."
+  }
+};
+
+
+// ===================================
+// FITUR MATERI
+// ===================================
+
+const materialButtons =
+  document.querySelectorAll(".material-button");
+
+const materialDetail =
+  document.getElementById("materialDetail");
+
+function showMaterial(layer) {
+
+  const data = materials[layer];
+
+  materialDetail.innerHTML = `
+    <h3>${data.title}</h3>
+    <p>${data.text}</p>
+    <br>
+    <strong>📌 Fakta:</strong>
+    <p>${data.fact}</p>
+  `;
+
+  materialButtons.forEach(button => {
+    button.classList.toggle(
+      "active",
+      button.dataset.layer === layer
+    );
+  });
+}
+
+materialButtons.forEach(button => {
+
+  button.addEventListener("click", () => {
+    showMaterial(button.dataset.layer);
+  });
+
+});
+
+showMaterial("crust");
+
+
+// ===================================
+// FITUR EKSPLORASI
+// ===================================
+
+const exploreButtons =
+  document.querySelectorAll("[data-explore]");
+
+const exploreDetail =
+  document.getElementById("exploreDetail");
+
+exploreButtons.forEach(button => {
+
+  button.addEventListener("click", () => {
+
+    const layer = button.dataset.explore;
+    const data = materials[layer];
+
+    exploreDetail.innerHTML = `
+      <h3>🔍 ${data.title}</h3>
+      <p>${data.text}</p>
+      <br>
+      <strong>${data.fact}</strong>
+    `;
+
+    exploreButtons.forEach(btn => {
+      btn.classList.remove("active");
+    });
+
+    button.classList.add("active");
+
+  });
+
+});
+
+
+// ===================================
+// FITUR MENU RESPONSIF
+// ===================================
+
+const menuToggle =
+  document.getElementById("menuToggle");
+
+const navMenu =
+  document.getElementById("navMenu");
+
+menuToggle.addEventListener("click", () => {
+
+  navMenu.classList.toggle("open");
+
+  menuToggle.textContent =
+    navMenu.classList.contains("open") ? "✕" : "☰";
+
+});
+
+document.querySelectorAll("#navMenu a").forEach(link => {
+
+  link.addEventListener("click", () => {
+
+    navMenu.classList.remove("open");
+    menuToggle.textContent = "☰";
+
+  });
+
+});
+
+
+// ===================================
+// GAME COCOKKAN LAPISAN BUMI
+// ===================================
+
+let selectedName = null;
+let selectedFact = null;
+let matchedPairs = new Set();
+
+const gameButtons =
+  document.querySelectorAll(".game-option");
+
+const gameMessage =
+  document.getElementById("gameMessage");
+
+const gameScore =
+  document.getElementById("gameScore");
+
+function updateGameScore() {
+
+  gameScore.textContent =
+    `Skor: ${matchedPairs.size} / 4`;
+
+}
+
+function resetGame() {
+
+  selectedName = null;
+  selectedFact = null;
+  matchedPairs.clear();
+
+  gameButtons.forEach(button => {
+
+    button.disabled = false;
+
+    button.classList.remove(
+      "selected",
+      "correct",
+      "wrong"
+    );
+
+  });
+
+  gameMessage.textContent =
+    "Pilih satu nama dan satu karakteristik!";
+
+  updateGameScore();
+
+}
+
+gameButtons.forEach(button => {
+
+  button.addEventListener("click", () => {
+
+    if (button.disabled) return;
+
+    const side = button.dataset.side;
+
+    if (side === "name") {
+
+      if (selectedName) {
+        selectedName.classList.remove("selected");
+      }
+
+      selectedName = button;
+
+    } else {
+
+      if (selectedFact) {
+        selectedFact.classList.remove("selected");
+      }
+
+      selectedFact = button;
+
+    }
+
+    button.classList.add("selected");
+
+    if (selectedName && selectedFact) {
+
+      const nameAnswer = selectedName.dataset.answer;
+      const factAnswer = selectedFact.dataset.answer;
+
+      if (nameAnswer === factAnswer) {
+
+        matchedPairs.add(nameAnswer);
+
+        selectedName.classList.remove("selected");
+        selectedFact.classList.remove("selected");
+
+        selectedName.classList.add("correct");
+        selectedFact.classList.add("correct");
+
+        selectedName.disabled = true;
+        selectedFact.disabled = true;
+
+        gameMessage.textContent =
+          "🎉 Hebat! Pasangan kamu benar!";
+
+      } else {
+
+        gameMessage.textContent =
+          "Belum tepat. Coba cocokkan kembali!";
+
+        const oldName = selectedName;
+        const oldFact = selectedFact;
+
+        oldName.classList.add("wrong");
+        oldFact.classList.add("wrong");
+
+        setTimeout(() => {
+
+          oldName.classList.remove("wrong", "selected");
+          oldFact.classList.remove("wrong", "selected");
+
+        }, 600);
+
+      }
+
+      selectedName = null;
+      selectedFact = null;
+
+      updateGameScore();
+
+      if (matchedPairs.size === 4) {
+
+        gameMessage.textContent =
+          "🏆 SELAMAT! Semua pasangan berhasil ditemukan!";
+
+      }
+
+    }
+
+  });
+
+});
+
+document.getElementById("resetGame")
+  .addEventListener("click", resetGame);
+
+resetGame();
+
+
+// ===================================
+// DATA SOAL KUIS
+// ===================================
+
+const questions = [
+
+  {
+    question: "Lapisan paling luar Bumi adalah ...",
+    answers: [
+      "Mantel Bumi",
+      "Kerak Bumi",
+      "Inti Luar",
+      "Inti Dalam"
+    ],
+    correct: 1,
+    explanation: "Kerak Bumi adalah lapisan paling luar."
+  },
+
+  {
+    question: "Lapisan Bumi yang paling tebal adalah ...",
+    answers: [
+      "Kerak Bumi",
+      "Mantel Bumi",
+      "Inti Luar",
+      "Inti Dalam"
+    ],
+    correct: 1,
+    explanation: "Mantel merupakan lapisan paling tebal."
+  },
+
+  {
+    question: "Inti luar Bumi memiliki bentuk ...",
+    answers: [
+      "Padat",
+      "Gas",
+      "Cair",
+      "Es"
+    ],
+    correct: 2,
+    explanation: "Inti luar terutama tersusun dari logam cair."
+  },
+
+  {
+    question: "Inti dalam Bumi terutama tersusun atas ...",
+    answers: [
+      "Besi dan nikel",
+      "Air dan udara",
+      "Pasir dan tanah",
+      "Batu dan es"
+    ],
+    correct: 0,
+    explanation: "Inti dalam terutama tersusun dari besi dan nikel."
+  },
+
+  {
+    question: "Apa yang berperan dalam pembentukan medan magnet Bumi?",
+    answers: [
+      "Kerak Bumi",
+      "Mantel Bumi",
+      "Inti luar",
+      "Atmosfer"
+    ],
+    correct: 2,
+    explanation: "Gerakan logam cair di inti luar berperan dalam pembentukan medan magnet."
+  }
+
+];
+
+
+// ===================================
+// SISTEM KUIS OTOMATIS
+// ===================================
+
+let currentQuestion = 0;
+let score = 0;
+let answered = false;
+
+const questionElement =
+  document.getElementById("question");
+
+const answersElement =
+  document.getElementById("answers");
+
+const feedbackElement =
+  document.getElementById("feedback");
+
+const nextButton =
+  document.getElementById("nextQuestion");
+
+const questionNumber =
+  document.getElementById("questionNumber");
+
+const progressBar =
+  document.getElementById("progressBar");
+
+const quizCard =
+  document.getElementById("quizCard");
+
+const quizResult =
+  document.getElementById("quizResult");
+
+
+function loadQuestion() {
+
+  answered = false;
+
+  const q = questions[currentQuestion];
+
+  questionNumber.textContent =
+    `Soal ${currentQuestion + 1} dari ${questions.length}`;
+
+  questionElement.textContent = q.question;
+
+  progressBar.style.width =
+    `${currentQuestion / questions.length * 100}%`;
+
+  feedbackElement.textContent =
+    "Pilih jawaban yang menurutmu benar.";
+
+  nextButton.disabled = true;
+
+  nextButton.textContent =
+    currentQuestion === questions.length - 1
+      ? "Lihat Hasil"
+      : "Selanjutnya →";
+
+  answersElement.innerHTML = "";
+
+  q.answers.forEach((answer, index) => {
+
+    const button = document.createElement("button");
+
+    button.className = "answer-option";
+
+    button.textContent =
+      `${String.fromCharCode(65 + index)}. ${answer}`;
+
+    button.addEventListener("click", () => {
+
+      checkAnswer(index);
+
+    });
+
+    answersElement.appendChild(button);
+
+  });
+
+}
+
+
+function checkAnswer(selected) {
+
+  if (answered) return;
+
+  answered = true;
+
+  const q = questions[currentQuestion];
+
+  const buttons =
+    document.querySelectorAll(".answer-option");
+
+  buttons.forEach((button, index) => {
+
+    button.disabled = true;
+
+    if (index === q.correct) {
+      button.classList.add("correct");
+    }
+
+    if (index === selected && selected !== q.correct) {
+      button.classList.add("incorrect");
+    }
+
+  });
+
+  if (selected === q.correct) {
+
+    score++;
+
+    feedbackElement.textContent =
+      "🎉 Benar! " + q.explanation;
+
+  } else {
+
+    feedbackElement.textContent =
+      "Belum tepat. " + q.explanation;
+
+  }
+
+  nextButton.disabled = false;
+
+}
+
+
+nextButton.addEventListener("click", () => {
+
+  if (!answered) return;
+
+  if (currentQuestion < questions.length - 1) {
+
+    currentQuestion++;
+
+    loadQuestion();
+
+  } else {
+
+    showResult();
+
+  }
+
+});
+
+
+// ===================================
+// HASIL KUIS
+// ===================================
+
+function showResult() {
+
+  quizCard.classList.add("hidden");
+
+  quizResult.classList.remove("hidden");
+
+  const finalScore =
+    Math.round(score / questions.length * 100);
+
+  let message = "";
+
+  if (finalScore === 100) {
+
+    message = "Luar biasa! Semua jawaban kamu benar! 🏆";
+
+  } else if (finalScore >= 60) {
+
+    message = "Bagus! Terus tingkatkan pengetahuanmu! 🌟";
+
+  } else {
+
+    message = "Tetap semangat! Ayo pelajari materinya lagi! 💪";
+
+  }
+
+  let bestScore = Number(
+    localStorage.getItem("bestScoreBumi") || 0
+  );
+
+  if (finalScore > bestScore) {
+
+    bestScore = finalScore;
+
+    localStorage.setItem(
+      "bestScoreBumi",
+      String(bestScore)
+    );
+
+  }
+
+  quizResult.innerHTML = `
+    <div style="text-align:center;padding:20px">
+
+      <div style="font-size:55px">🏆</div>
+
+      <h2>Hasil Kuis Kamu</h2>
+
+      <h1 style="font-size:55px;color:#249bd1">
+        ${finalScore}
+      </h1>
+
+      <h3>${score} dari ${questions.length} jawaban benar</h3>
+
+      <p style="margin:15px 0">${message}</p>
+
+      <p>Nilai terbaik: ${bestScore}</p>
+
+      <button class="btn primary" id="retryQuiz">
+        ↻ Ulangi Kuis
+      </button>
+
+    </div>
+  `;
+
+  document.getElementById("retryQuiz")
+    .addEventListener("click", restartQuiz);
+
+}
+
+
+function restartQuiz() {
+
+  currentQuestion = 0;
+  score = 0;
+
+  quizResult.classList.add("hidden");
+  quizCard.classList.remove("hidden");
+
+  loadQuestion();
+
+}
+
+loadQuestion();
+
+
+// ===================================
+// SELESAI
+// ===================================
+
+console.log("Jelajah Bumi berhasil dijalankan!");
